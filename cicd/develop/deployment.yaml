@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graduation-v1
+spec:
+  selector:
+    matchLabels:
+      app: graduation-be-pod
+  template:
+    metadata:
+      labels:
+        app: graduation-be-pod
+    spec:
+      containers:
+        - name: graduation-be-pod
+          image: ${REGION_REGISTRY}/${GOOGLE_PROJECT}/${REGISTRY_PROJECT}/dev/graduation:${VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8891
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "${SPRING_PROFILES_ACTIVE_VARIABLE}"

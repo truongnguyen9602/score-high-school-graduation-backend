@@ -1,0 +1,146 @@
+pipeline {
+    agent any
+    environment {
+        GITHUB_TOKEN = credentials('1065fcd9-c161-4918-b82d-7e4ff251ef79')
+        GOOGLE_CREDENTIALS = credentials('32098b2f-a737-4a58-98fc-cc90e05491de')
+        GOOGLE_PROJECT = 'doantn-442713'
+        CLUSTER_NAME = 'truongdatn'
+        CLUSTER_ZONE = 'us-central1'
+        REGION_REGISTRY = 'asia-southeast1-docker.pkg.dev'
+        REGISTRY_PROJECT = 'cicd-registry'
+        SPRING_PROFILES_ACTIVE_VARIABLE = 'prod'
+
+        TELEGRAM_TOKEN = credentials('telegram-bot-access-token')
+        TELEGRAM_CHAT_ID = credentials('telegram-bot-id')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/duogglong/score-high-school-graduation-be.git"
+            }
+        }
+        stage('Set Git Variables') {
+            steps {
+                script {
+                    env.GIT_REPO = scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().replace('.git', '')
+                    env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+                    env.GIT_AUTHOR = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    env.VERSION = sh(script: "git describe --tags || echo \"latest\"", returnStdout: true).trim()
+                }
+            }
+        }
+        stage('Unit test') {
+            steps {
+                sh '''
+                    chmod +x ./mvnw
+                    ./mvnw test
+                '''
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    sh """
+                        sudo docker system prune -af
+                        gcloud auth activate-service-account --key-file=$GOOGLE_CREDENTIALS
+                        gcloud auth configure-docker $REGION_REGISTRY
+                        docker build -t $REGION_REGISTRY/$GOOGLE_PROJECT/$REGISTRY_PROJECT/prod/graduation:$VERSION .
+                        docker push $REGION_REGISTRY/$GOOGLE_PROJECT/$REGISTRY_PROJECT/prod/graduation:$VERSION
+                    """
+                }
+            }
+        }
+        stage('Deploy to GKE') {
+            steps {
+                withCredentials([file(credentialsId: '32098b2f-a737-4a58-98fc-cc90e05491de', variable: 'GOOGLE_CREDENTIALS')]) {
+                    sh """
+                        gcloud auth activate-service-account --key-file=$GOOGLE_CREDENTIALS
+                        gcloud config set project $GOOGLE_PROJECT
+                        gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE
+                        export VERSION=$VERSION
+                        envsubst < ./cicd/prod/deployment.yaml > ./cicd/prod/deployment-generated.yaml
+                        kubectl apply -n prod -f ./cicd/prod/deployment-generated.yaml --validate=false
+                        kubectl rollout status -n prod deployment/graduation-v1
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            withCredentials([string(credentialsId: 'telegram-bot-access-token', variable: 'TELEGRAM_TOKEN'),
+                             string(credentialsId: 'telegram-bot-id', variable: 'TELEGRAM_CHAT_ID')]) {
+                script {
+                    def escapeForHTML = { text ->
+                        text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
+                    }
+                    def buildLink = escapeForHTML(env.BUILD_URL)
+                    def repoLink = escapeForHTML("https://github.com/${env.GIT_REPO}")
+                    def actor = escapeForHTML(env.GIT_AUTHOR)
+                    def commitHash = escapeForHTML(env.GIT_COMMIT)
+
+                    def message = """
+🚀 ---PRODUCTION-BACKEND---
+Status: ✅ Success
+Actor: ${actor}
+Repository: ${env.GIT_REPO}
+Link: ${buildLink}
+Commit: ${commitHash}
+"""
+                    sh """
+                    curl -s -X POST https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendMessage \
+                    -d chat_id="$TELEGRAM_CHAT_ID" \
+                    -d parse_mode="HTML" \
+                    -d text="${message}"
+                    """
+                }
+            }
+        }
+        failure {
+            withCredentials([string(credentialsId: 'telegram-bot-access-token', variable: 'TELEGRAM_TOKEN'),
+                             string(credentialsId: 'telegram-bot-id', variable: 'TELEGRAM_CHAT_ID')]) {
+                script {
+                    def escapeForHTML = { text ->
+                        text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
+                    }
+                    def buildLink = escapeForHTML(env.BUILD_URL)
+
+                    def message = """
+⚠️ ---PRODUCTION-BACKEND---
+Status: ❌ Failure
+Link: ${buildLink}
+"""
+                    sh """
+                    curl -s -X POST https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendMessage \
+                    -d chat_id="$TELEGRAM_CHAT_ID" \
+                    -d parse_mode="HTML" \
+                    -d text="${message}"
+                    """
+                }
+            }
+        }
+        aborted {
+            withCredentials([string(credentialsId: 'telegram-bot-access-token', variable: 'TELEGRAM_TOKEN'),
+                             string(credentialsId: 'telegram-bot-id', variable: 'TELEGRAM_CHAT_ID')]) {
+                script {
+                    def escapeForHTML = { text ->
+                        text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
+                    }
+                    def buildLink = escapeForHTML(env.BUILD_URL)
+
+                    def message = """
+⚠️ ---PRODUCTION-BACKEND---
+Status: 🚫 Aborted
+Link: ${buildLink}
+"""
+                    sh """
+                    curl -s -X POST https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendMessage \
+                    -d chat_id="$TELEGRAM_CHAT_ID" \
+                    -d parse_mode="HTML" \
+                    -d text="${message}"
+                    """
+                }
+            }
+        }
+    }
+}
