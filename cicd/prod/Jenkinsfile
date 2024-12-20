@@ -13,18 +13,17 @@ pipeline {
         TELEGRAM_TOKEN = credentials('tr_telegram_access')
         TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
-   stages {
-         stage('Check Tag Trigger') {
-             steps {
-                 script {
-                     if (!buildingTag()) {
-                         currentBuild.result = 'ABORTED'
-                         error("Pipeline aborted: This pipeline runs only for tag creation.")
-                     }
-                 }
-             }
-         }
     stages {
+        stage('Check Tag Trigger') {
+            steps {
+                script {
+                    if (!buildingTag()) {
+                        currentBuild.result = 'ABORTED'
+                        error("Pipeline aborted: This pipeline runs only for tag creation.")
+                    }
+                }
+            }
+        }
         stage('Checkout') {
             steps {
                 git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
