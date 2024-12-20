@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/duogglong/score-high-school-graduation-be.git"
+                git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
             }
         }
         stage('Set Git Variables') {
