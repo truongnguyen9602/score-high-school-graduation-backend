@@ -68,8 +68,8 @@ pipeline {
     }
     post {
         success {
-            withCredentials([string(credentialsId: 'telegram-bot-access-token', variable: 'TELEGRAM_TOKEN'),
-                             string(credentialsId: 'telegram-bot-id', variable: 'TELEGRAM_CHAT_ID')]) {
+            withCredentials([string(credentialsId: 'tr_telegram_access', variable: 'TELEGRAM_TOKEN'),
+                             string(credentialsId: 'tr_telegram_id', variable: 'TELEGRAM_CHAT_ID')]) {
                 script {
                     def escapeForHTML = { text ->
                         text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
@@ -97,8 +97,8 @@ Commit: ${commitHash}
             }
         }
         failure {
-            withCredentials([string(credentialsId: 'telegram-bot-access-token', variable: 'TELEGRAM_TOKEN'),
-                             string(credentialsId: 'telegram-bot-id', variable: 'TELEGRAM_CHAT_ID')]) {
+            withCredentials([string(credentialsId: 'tr_telegram_access', variable: 'TELEGRAM_TOKEN'),
+                             string(credentialsId: 'tr_telegram_id', variable: 'TELEGRAM_CHAT_ID')]) {
                 script {
                     def escapeForHTML = { text ->
                         text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
@@ -120,8 +120,8 @@ Link: ${buildLink}
             }
         }
         aborted {
-            withCredentials([string(credentialsId: 'telegram-bot-access-token', variable: 'TELEGRAM_TOKEN'),
-                             string(credentialsId: 'telegram-bot-id', variable: 'TELEGRAM_CHAT_ID')]) {
+            withCredentials([string(credentialsId: 'tr_telegram_access', variable: 'TELEGRAM_TOKEN'),
+                             string(credentialsId: 'tr_telegram_id', variable: 'TELEGRAM_CHAT_ID')]) {
                 script {
                     def escapeForHTML = { text ->
                         text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
