@@ -13,22 +13,17 @@ pipeline {
         TELEGRAM_TOKEN = credentials('tr_telegram_access')
         TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
-    stages {
-        stage('Check Tag Trigger') { // Tên của stage là "Check Tag Trigger"
-            steps {
-                script { // Bắt đầu script block
-                    if (!env.BUILD_TAG || !env.BUILD_TAG.startsWith("refs/tags/")) {
-                        // Kiểm tra nếu biến môi trường BUILD_TAG không tồn tại
-                        // hoặc không bắt đầu bằng chuỗi "refs/tags/"
-                        currentBuild.result = 'ABORTED'
-                        // Đặt trạng thái của build hiện tại là "ABORTED"
-                        error("Pipeline aborted: This pipeline runs only for tag creation.")
-                        // Ném ra lỗi với thông báo "Pipeline bị hủy: Pipeline này chỉ chạy khi tạo tag."
-                    }
-                }
-            }
-        }
-    }
+   stages {
+         stage('Check Tag Trigger') {
+             steps {
+                 script {
+                     if (!buildingTag()) {
+                         currentBuild.result = 'ABORTED'
+                         error("Pipeline aborted: This pipeline runs only for tag creation.")
+                     }
+                 }
+             }
+         }
     stages {
         stage('Checkout') {
             steps {
