@@ -10,13 +10,13 @@ pipeline {
         REGISTRY_PROJECT = 'cicd-registry'
         SPRING_PROFILES_ACTIVE_VARIABLE = 'staging'
 
-        TELEGRAM_TOKEN = credentials('telegram-bot-access-token')
-        TELEGRAM_CHAT_ID = credentials('telegram-bot-id')
+        TELEGRAM_TOKEN = credentials('tr_telegram_access')
+        TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'staging', url: "https://$GITHUB_TOKEN@github.com/duogglong/score-high-school-graduation-be.git"
+                git branch: 'staging', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
             }
         }
         stage('Set Git Variables') {

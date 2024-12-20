@@ -10,8 +10,8 @@ pipeline {
         REGISTRY_PROJECT = 'cicd-registry'
         SPRING_PROFILES_ACTIVE_VARIABLE = 'prod'
 
-        TELEGRAM_TOKEN = credentials('telegram-bot-access-token')
-        TELEGRAM_CHAT_ID = credentials('telegram-bot-id')
+        TELEGRAM_TOKEN = credentials('tr_telegram_access')
+        TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
     stages {
         stage('Checkout') {
