@@ -14,21 +14,6 @@ pipeline {
         TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
     stages {
-        stage('Check Tag Trigger') {
-            steps {
-                script {
-                    // Lệnh kiểm tra xem có phải là Git Tag hay không
-                    def ref = sh(script: "git describe --tags --exact-match || echo ''", returnStdout: true).trim()
-
-                    // Kiểm tra nếu không phải tag
-                    if (ref == '') {
-                        currentBuild.result = 'ABORTED'
-                        error("Pipeline aborted: This pipeline runs only for Git Tag creation. Current ref: ${ref}")
-                    }
-                    echo "Pipeline triggered by Git Tag: ${ref}"
-                }
-            }
-        }
         stage('Checkout') {
             steps {
                 git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
