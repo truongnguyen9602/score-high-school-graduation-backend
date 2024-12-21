@@ -19,4 +19,10 @@ public class StatisticController {
     public StatisticEntity sendEmail(@PathVariable("sbd") String sbd) {
         return service.findBySbd(sbd);
     }
+
+
+
+
+
+
 }
