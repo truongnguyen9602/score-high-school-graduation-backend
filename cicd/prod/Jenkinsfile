@@ -9,17 +9,14 @@ pipeline {
         REGION_REGISTRY = 'asia-southeast1-docker.pkg.dev'
         REGISTRY_PROJECT = 'cicd-registry'
         SPRING_PROFILES_ACTIVE_VARIABLE = 'prod'
+
         TELEGRAM_TOKEN = credentials('tr_telegram_access')
         TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
-//     triggers {
-//         // Trigger only on push events to the 'master' branch
-//         github(
-// //             triggerOnPush: true,
-// //             triggerOnPullRequest: false,
-//             includes: 'master'
-//         )
-//     }
+    triggers {
+        // Trigger chỉ chạy khi có push tag vào nhánh 'prod'
+        githubPush()
+    }
     stages {
         stage('Check Tag Trigger') {
             steps {
@@ -38,7 +35,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
+                git branch: 'prod', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
             }
         }
         stage('Set Git Variables') {
