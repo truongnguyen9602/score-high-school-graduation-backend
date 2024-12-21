@@ -9,13 +9,33 @@ pipeline {
         REGION_REGISTRY = 'asia-southeast1-docker.pkg.dev'
         REGISTRY_PROJECT = 'cicd-registry'
         SPRING_PROFILES_ACTIVE_VARIABLE = 'prod'
+
         TELEGRAM_TOKEN = credentials('tr_telegram_access')
         TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
+    triggers {
+        // Trigger chỉ chạy khi có push tag vào nhánh 'prod'
+        githubPush()
+    }
     stages {
+        stage('Check Tag Trigger') {
+            steps {
+                script {
+                    // Lệnh kiểm tra xem có phải là Git Tag hay không
+                    def ref = sh(script: "git describe --tags --exact-match || echo ''", returnStdout: true).trim()
+
+                    // Kiểm tra nếu không phải tag
+                    if (ref == '') {
+                        currentBuild.result = 'ABORTED'
+                        error("Pipeline aborted: This pipeline runs only for Git Tag creation. Current ref: ${ref}")
+                    }
+                    echo "Pipeline triggered by Git Tag: ${ref}"
+                }
+            }
+        }
         stage('Checkout') {
             steps {
-                git branch: 'master', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
+                git branch: 'prod', url: "https://$GITHUB_TOKEN@github.com/truongnguyen9602/score-high-school-graduation-backend.git"
             }
         }
         stage('Set Git Variables') {
@@ -107,29 +127,6 @@ Commit: ${commitHash}
                     def message = """
 ⚠️ ---PRODUCTION-BACKEND---
 Status: ❌ Failure
-Link: ${buildLink}
-"""
-                    sh """
-                    curl -s -X POST https://api.telegram.org/bot"$TELEGRAM_TOKEN"/sendMessage \
-                    -d chat_id="$TELEGRAM_CHAT_ID" \
-                    -d parse_mode="HTML" \
-                    -d text="${message}"
-                    """
-                }
-            }
-        }
-        aborted {
-            withCredentials([string(credentialsId: 'tr_telegram_access', variable: 'TELEGRAM_TOKEN'),
-                             string(credentialsId: 'tr_telegram_id', variable: 'TELEGRAM_CHAT_ID')]) {
-                script {
-                    def escapeForHTML = { text ->
-                        text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;")
-                    }
-                    def buildLink = escapeForHTML(env.BUILD_URL)
-
-                    def message = """
-⚠️ ---PRODUCTION-BACKEND---
-Status: 🚫 Aborted
 Link: ${buildLink}
 """
                     sh """
