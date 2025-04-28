@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu điểm thi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d4e8fc;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #0366d6;
+            padding: 25px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px 25px;
+            color: #333333;
+        }
+
+        .content p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            display: block;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #0366d6;
+            padding: 10px;
+            background-color: #eef6ff;
+            border-radius: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #f5faff;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            color: #666666;
+            font-size: 14px;
+            border-top: 1px solid #e1eaf5;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Tra cứu điểm thi </h1>
+    </div>
+    <div class="content">
+        <p>Xin chào,</p>
+        <p>Điểm thi THPT của thí sinh mang SBD <strong>${sbd}</strong> được hiển thị bên dưới:</p>
+        <span class="message">${message}</span>
+        <p>Cảm ơn bạn đã sử dụng hệ thống của chúng tôi để tra cứu điểm thi .</p>
+    </div>
+    <div class="footer">
+    </div>
+</div>
+</body>
+
+</html>

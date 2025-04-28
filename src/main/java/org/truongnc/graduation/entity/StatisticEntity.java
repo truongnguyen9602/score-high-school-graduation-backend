@@ -37,4 +37,50 @@ public class StatisticEntity {
     private String dia;
 
     private String tbKhxh;
+
+    public String buildScoreString() {
+        StringBuilder result = new StringBuilder();
+
+        if (toan != null) {
+            result.append("Môn Toán ").append(toan).append(" | ");
+        }
+        if (van != null) {
+            result.append("Môn Văn ").append(van).append(" | ");
+        }
+        if (anh != null) {
+            result.append("Môn Anh ").append(anh).append(" | ");
+        }
+        if (ly != null) {
+            result.append("Môn Lý ").append(ly).append(" | ");
+        }
+        if (hoa != null) {
+            result.append("Môn Hóa ").append(hoa).append(" | ");
+        }
+        if (sinh != null) {
+            result.append("Môn Sinh ").append(sinh).append(" | ");
+        }
+        if (tbKhtn != null) {
+            result.append("TB KHTN ").append(tbKhtn).append(" | ");
+        }
+        if (gdcd != null) {
+            result.append("Môn GDCD ").append(gdcd).append(" | ");
+        }
+        if (su != null) {
+            result.append("Môn Sử ").append(su).append(" | ");
+        }
+        if (dia != null) {
+            result.append("Môn Địa ").append(dia).append(" | ");
+        }
+        if (tbKhxh != null) {
+            result.append("TB KHXH ").append(tbKhxh).append(" | ");
+        }
+
+        // Xóa ký tự " | " cuối cùng nếu chuỗi không rỗng
+        if (result.length() > 0) {
+            result.setLength(result.length() - 3);
+        }
+
+        return result.toString();
+    }
+
 }

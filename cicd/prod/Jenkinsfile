@@ -13,9 +13,9 @@ pipeline {
         TELEGRAM_TOKEN = credentials('tr_telegram_access')
         TELEGRAM_CHAT_ID = credentials('tr_telegram_id')
     }
-    triggers {
-        // Trigger chỉ chạy khi có push tag vào nhánh 'prod'
-        githubPush()
+//     triggers {
+//         // Trigger chỉ chạy khi có push tag vào nhánh 'prod'
+//         githubPush()
     }
     stages {
         stage('Check Tag Trigger') {
